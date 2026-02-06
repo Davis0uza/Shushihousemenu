@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { MenuItem, SectionType } from '../types';
-import { sectionInfo } from '../data/menuData';
+
 import MenuItemCard from './MenuItemCard';
 
 type ViewMode = 'list' | 'grid';
@@ -27,12 +27,6 @@ export function SectionGrid({
             {/* View Toggle Header */}
             <div className="section-grid__header">
                 <div className="section-grid__title-area">
-                    <img
-                        src={sectionInfo[section].icon}
-                        alt=""
-                        className="section-grid__icon"
-                        aria-hidden="true"
-                    />
                     <h2 className="section-grid__title">{section}</h2>
                 </div>
 

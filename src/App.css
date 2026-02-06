@@ -432,7 +432,8 @@ body {
 /* === Section Grid === */
 .section-grid__header {
   display: flex;
-  justify-content: space-between; /* Changed from flex-end to space-between */
+  justify-content: space-between;
+  /* Changed from flex-end to space-between */
   align-items: center;
   margin-bottom: var(--space-md);
 }
@@ -572,15 +573,20 @@ body {
 .menu-card--list {
   display: flex;
   flex-direction: row;
-  align-items: center; /* Center content vertically */
+  align-items: center;
+  /* Center content vertically */
 }
 
 .menu-card--list .menu-card__image {
-  width: 100px; /* Slightly smaller to fit nicely */
+  width: 100px;
   height: 100px;
   flex-shrink: 0;
-  margin: var(--space-sm); /* Add spacing from edge */
-  border-radius: var(--radius-md); /* Rounded corners */
+  margin: var(--space-sm);
+  border-radius: var(--radius-md);
+  align-self: center;
+  /* Ensure vertical centering */
+  background-color: var(--color-bg);
+  /* distinct background */
 }
 
 .menu-card--list .menu-card__content {

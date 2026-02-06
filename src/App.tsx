@@ -4,7 +4,6 @@ import type { MenuItem, SectionType, AppView, CartItem, Order } from './types';
 import { SECTIONS } from './types';
 import { getItemsBySection, menuItems } from './data/menuData';
 import {
-  SectionHeader,
   TopBar,
   SectionNav,
   SectionGrid,

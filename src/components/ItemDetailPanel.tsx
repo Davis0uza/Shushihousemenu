@@ -25,24 +25,7 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps) {
                 <p className="item-detail__description">{item.description}</p>
                 <p className="item-detail__origin">{item.origin}</p>
 
-                {/* Ingredients Table */}
-                <h3>Ingredientes</h3>
-                <table className="item-detail__table">
-                    <thead>
-                        <tr>
-                            <th>Ingrediente</th>
-                            <th>Detalhe</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {item.ingredients.map((ing, idx) => (
-                            <tr key={idx}>
-                                <td>{ing.name}</td>
-                                <td>{ing.detail || '—'}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+
 
 
             </div>
