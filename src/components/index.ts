@@ -11,3 +11,4 @@ export { CartActionBar } from './CartActionBar';
 export { PinModal } from './PinModal';
 export { OrderHistoryPage } from './OrderHistoryPage';
 export { Onboarding } from './Onboarding';
+export { ARViewer } from './ARViewer';

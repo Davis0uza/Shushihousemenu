@@ -43,6 +43,8 @@ export interface MenuItem {
   image: string; // path to item image
   origin: string; // brief origin/story text
   ingredients: Ingredient[];
+  modelUrl?: string; // URL for GLB/GLTF model
+  iosModelUrl?: string; // URL for USDZ model (iOS AR)
 }
 
 export interface SectionInfo {

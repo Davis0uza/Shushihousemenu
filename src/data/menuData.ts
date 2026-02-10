@@ -197,6 +197,8 @@ export const menuItems: MenuItem[] = [
         image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400&h=400&fit=crop',
         origin: 'A melhor seleção do dia.',
         ingredients: [{ name: 'Variedade', icon: '/images/menu/sushi.png' }],
+        modelUrl: '/models/Sushi.glb', // Correct path for Vite public folder
+        // iosModelUrl: '/models/Sushi.usdz', // TODO: Convert your GLB to USDZ for iOS AR support
     },
     {
         id: 'sushi-2',
