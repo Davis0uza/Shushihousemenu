@@ -23,12 +23,10 @@ export const ARViewer: React.FC<ARViewerProps> = ({
       className="ar-viewer-container"
       style={{
         width: "100%",
-        height: "300px",
+        height: "100%", // Changed to 100% to fill parent logic
         position: "relative",
-        background: "#f5f5f5",
         borderRadius: "12px",
         overflow: "hidden",
-        marginTop: "1rem",
       }}
     >
       {React.createElement(

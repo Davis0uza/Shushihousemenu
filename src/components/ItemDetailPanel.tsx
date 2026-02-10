@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ARViewer } from "./ARViewer";
 import type { MenuItem } from "../types";
 
@@ -7,18 +8,53 @@ interface ItemDetailPanelProps {
 }
 
 export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps) {
+  const [show3D, setShow3D] = useState(false);
+
   return (
     <section className="item-detail" aria-label="Detalhes do item">
-      <button
-        className="item-detail__close"
-        onClick={onClose}
-        aria-label="Voltar à lista"
+      <div
+        className="item-detail__header"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "1rem",
+        }}
       >
-        ← Voltar
-      </button>
+        <button
+          className="item-detail__close"
+          onClick={onClose}
+          aria-label="Voltar à lista"
+          style={{ marginBottom: 0 }}
+        >
+          ← Voltar
+        </button>
+
+        {item.modelUrl && (
+          <button
+            onClick={() => setShow3D(!show3D)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 16px",
+              borderRadius: "20px",
+              border: show3D ? "1px solid #FF7054" : "1px solid #e0e0e0",
+              backgroundColor: show3D ? "#FFF5F3" : "white",
+              color: show3D ? "#FF7054" : "#666",
+              fontSize: "14px",
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+          >
+            {show3D ? "Ver Foto 📷" : "Ver em 3D 🧊"}
+          </button>
+        )}
+      </div>
 
       <div className="item-detail__hero">
-        {item.modelUrl ? (
+        {show3D && item.modelUrl ? (
           <ARViewer
             modelUrl={item.modelUrl}
             iosModelUrl={item.iosModelUrl}
