@@ -39,7 +39,6 @@ export const ARViewer: React.FC<ARViewerProps> = ({
           alt: altText,
           "shadow-intensity": "1",
           "camera-controls": true,
-          "auto-rotate": true,
           ar: true,
           "ar-modes": "webxr scene-viewer quick-look", // Prioritize WebXR for seamless browser experience
           "ar-scale": "auto",
@@ -50,8 +49,8 @@ export const ARViewer: React.FC<ARViewerProps> = ({
           "environment-image": "neutral", // Consistent lighting across devices
           "skybox-image": "/images/restaurant_env.jpg", // 360 Environment (Local)
           exposure: "1",
-          "camera-orbit": "45deg 55deg 2.5m", // Lower angle (table view) instead of top-down
-          "field-of-view": "30deg", // Slight zoom for better framing
+          "camera-orbit": "0deg 75deg auto", // Grounded view (eye-level)
+          "interaction-prompt": "none", // Disable hand animation
           style: { width: "100%", height: "100%" },
         } as any,
         <div
