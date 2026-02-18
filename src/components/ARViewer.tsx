@@ -1,5 +1,4 @@
-```
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from "react";
 
 // ARViewer Component using <model-viewer>
 interface ARViewerProps {
@@ -9,7 +8,12 @@ interface ARViewerProps {
   altText: string;
 }
 
-export const ARViewer: React.FC<ARViewerProps> = ({ modelUrl, iosModelUrl, posterUrl, altText }) => {
+export const ARViewer: React.FC<ARViewerProps> = ({
+  modelUrl,
+  iosModelUrl,
+  posterUrl,
+  altText,
+}) => {
   const modelViewerRef = useRef<any>(null);
   const [isPlaced, setIsPlaced] = useState(false);
   const [arMode, setArMode] = useState(false);
@@ -17,7 +21,9 @@ export const ARViewer: React.FC<ARViewerProps> = ({ modelUrl, iosModelUrl, poste
 
   // Check valid device OS
   useEffect(() => {
-    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream);
+    setIsIOS(
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream,
+    );
   }, []);
 
   // Handle AR Session Start/End
@@ -27,24 +33,23 @@ export const ARViewer: React.FC<ARViewerProps> = ({ modelUrl, iosModelUrl, poste
 
     const onARStatus = (event: any) => {
       // session-started logic
-      if (event.detail.status === 'session-started') {
+      if (event.detail.status === "session-started") {
         setArMode(true);
         setIsPlaced(false);
-        // HIDE MODEL IMMEDIATELY to prevent "flying"
-        // We use scale instead of opacity/materials to preserve textures
-        mv.scale = '0 0 0'; 
-      } 
+        // Initially hide the model to simulate "Reticle Only" mode
+        mv.scale = "0 0 0";
+      }
       // not-presenting logic
-      else if (event.detail.status === 'not-presenting') {
+      else if (event.detail.status === "not-presenting") {
         setArMode(false);
         setIsPlaced(false);
-        // Reset scale for 3D preview
-        mv.scale = '1 1 1';
+        // Reset scale for 3D viewer
+        mv.scale = "1 1 1";
       }
     };
 
-    mv.addEventListener('ar-status', onARStatus);
-    return () => mv.removeEventListener('ar-status', onARStatus);
+    mv.addEventListener("ar-status", onARStatus);
+    return () => mv.removeEventListener("ar-status", onARStatus);
   }, []);
 
   // Handle Placement (Tap)
@@ -55,7 +60,7 @@ export const ARViewer: React.FC<ARViewerProps> = ({ modelUrl, iosModelUrl, poste
     const mv = modelViewerRef.current;
     if (!mv) return;
 
-    // Spawn Animation (Pop up)
+    // Spawn Animation
     let progress = 0;
     const duration = 1000; // 1s animation
     const startTime = performance.now();
@@ -63,18 +68,19 @@ export const ARViewer: React.FC<ARViewerProps> = ({ modelUrl, iosModelUrl, poste
     const animate = (time: number) => {
       const elapsed = time - startTime;
       progress = Math.min(elapsed / duration, 1);
-      
-      // Elastic Ease Out
+
+      // Easing (EaseOutBack for pop effect)
       const ease = (t: number) => {
-        const c4 = (2 * Math.PI) / 3;
-        return t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+        const c1 = 1.70158;
+        const c3 = c1 + 1;
+        return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
       };
 
       const scaleVal = ease(progress);
       mv.scale = `${scaleVal} ${scaleVal} ${scaleVal}`;
-      
-      // Rotate from -360 to 0 (Spin)
-      const rotationY = -360 * (1 - ease(progress)); 
+
+      // Rotate from -360 to 0
+      const rotationY = -360 * (1 - ease(progress));
       mv.orientation = `0deg ${rotationY}deg 0deg`;
 
       if (progress < 1) {
@@ -86,107 +92,123 @@ export const ARViewer: React.FC<ARViewerProps> = ({ modelUrl, iosModelUrl, poste
   };
 
   return (
-    <div className="ar-viewer-container" style={{ width: '100%', height: '100%', position: 'relative', borderRadius: '12px', overflow: 'hidden' }}>
-      
+    <div
+      className="ar-viewer-container"
+      style={{
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        borderRadius: "12px",
+        overflow: "hidden",
+      }}
+    >
       {/* 
-        AR RETICLE OVERLAY 
-        Visible only in WebXR mode (Android Chrome usually) before placement.
-        We use a high z-index div relative to the container.
+        AR OVERLAY SYSTEM 
+        Only visible when AR is active and model is NOT yet placed.
+        We stick a transparent div over everything to capture the "Place" tap anywhere on screen.
+        Note: This only works if the browser supports DOM Overlay in WebXR (Chrome Android usually does).
       */}
       {arMode && !isPlaced && !isIOS && (
-        <div 
-            onClick={handlePlace} 
+        <div
+          onClick={handlePlace} // Capture tap anywhere
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: 999999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            pointerEvents: "auto", // Ensure it captures clicks
+          }}
+        >
+          {/* The Visual Reticle (Target) */}
+          <div
             style={{
-                position: 'fixed', // Fixed to screen for AR overlay
-                top: 0,
-                left: 0,
-                width: '100vw',
-                height: '100vh',
-                zIndex: 999999,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                pointerEvents: 'auto',
-            }}>
-            
-            {/* Dashed Reticle */}
-            <div style={{
-                width: '250px',
-                height: '250px',
-                border: '3px dashed rgba(255, 255, 255, 0.9)',
-                borderRadius: '16px',
-                boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.4)', // Dim background
-                display: 'flex',
-                alignItems: 'flex-end',
-                justifyContent: 'center',
-            }}>
-                {/* Instruction Text */}
-                 <div style={{
-                    marginBottom: '-60px',
-                    color: 'white',
-                    background: 'rgba(0,0,0,0.8)',
-                    padding: '10px 20px',
-                    borderRadius: '30px',
-                    fontWeight: 'bold',
-                    fontFamily: 'sans-serif',
-                    fontSize: '16px',
-                    textAlign: 'center',
-                    pointerEvents: 'none'
-                }}>
-                    Toque no quadrado para confirmar
-                </div>
+              width: "250px",
+              height: "250px",
+              border: "3px dashed rgba(255, 255, 255, 0.9)",
+              borderRadius: "16px",
+              boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.4)", // Dim background focus effect
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "center",
+            }}
+          >
+            <div
+              style={{
+                marginBottom: "-60px",
+                color: "white",
+                background: "rgba(0,0,0,0.8)",
+                padding: "10px 20px",
+                borderRadius: "30px",
+                fontWeight: "bold",
+                whiteSpace: "nowrap",
+                fontSize: "16px",
+                textAlign: "center",
+                pointerEvents: "none",
+              }}
+            >
+              Toque no quadrado para confirmar
             </div>
+          </div>
         </div>
       )}
 
-      {React.createElement('model-viewer', {
-        ref: modelViewerRef,
-        src: modelUrl,
-        'ios-src': iosModelUrl,
-        poster: posterUrl,
-        alt: altText,
-        'shadow-intensity': "1",
-        'camera-controls': true,
-        ar: true,
-        'ar-modes': "webxr scene-viewer quick-look",
-        'ar-scale': "fixed", // Manual scale control for animation
-        'ar-placement': "floor",
-        'touch-action': "pan-y",
-        loading: "eager",
-        "seamless-poster": true,
-        "environment-image": "neutral",
-        "skybox-image": "/images/restaurant_env.jpg", 
-        exposure: "1",
-        "camera-orbit": "0deg 75deg auto",
-        "interaction-prompt": "none",
-        style: { width: '100%', height: '100%' },
-        onClick: handlePlace 
-      } as any, 
-      (
-        <div slot="ar-button" style={{
-            position: 'absolute',
-            bottom: '20px',
-            right: '20px',
-            backgroundColor: 'white',
-            borderRadius: '20px',
-            border: '1px solid #dadce0',
-            padding: '8px 16px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.25)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-            fontFamily: 'sans-serif',
-            fontSize: '14px',
-            fontWeight: '600',
-            color: '#4285f4',
-            zIndex: 100
-        }}>
-           Toque para ver em AR 🧊
-        </div>
-      ))}
+      {React.createElement(
+        "model-viewer",
+        {
+          ref: modelViewerRef,
+          src: modelUrl,
+          "ios-src": iosModelUrl,
+          poster: posterUrl,
+          alt: altText,
+          "shadow-intensity": "1",
+          "camera-controls": true,
+          ar: true,
+          "ar-modes": "webxr scene-viewer quick-look",
+          "ar-scale": "fixed",
+          "ar-placement": "floor",
+          "touch-action": "pan-y",
+          loading: "eager",
+          "seamless-poster": true,
+          "environment-image": "neutral",
+          "skybox-image": "/images/restaurant_env.jpg",
+          exposure: "1",
+          "camera-orbit": "0deg 75deg auto",
+          "interaction-prompt": "none",
+          style: { width: "100%", height: "100%" },
+          // Fallback click handler if overlay fails or for non-AR interaction
+          onClick: handlePlace,
+        } as any,
+        <div
+          slot="ar-button"
+          style={{
+            position: "absolute",
+            bottom: "20px",
+            right: "20px",
+            backgroundColor: "white",
+            borderRadius: "20px",
+            border: "1px solid #dadce0",
+            padding: "8px 16px",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.25)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            cursor: "pointer",
+            fontFamily: "sans-serif",
+            fontSize: "14px",
+            fontWeight: "600",
+            color: "#4285f4",
+            zIndex: 100,
+          }}
+        >
+          Toque para ver em AR 🧊
+        </div>,
+      )}
     </div>
   );
 };
-```
