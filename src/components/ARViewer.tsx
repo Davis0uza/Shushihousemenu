@@ -48,8 +48,7 @@ export const ARViewer: React.FC<ARViewerProps> = ({
           loading: "eager", // Load model immediately when component mounts
           "seamless-poster": true, // Smooth transition from image to model
           "environment-image": "neutral", // Consistent lighting across devices
-          "skybox-image":
-            "https://static.where-e.com/Japan/Kumamoto_Prefecture/Umekura_8efe54807ec98cb0871640cec6c9e1dd.jpg", // 360 Environment
+          "skybox-image": "/images/restaurant_env.jpg", // 360 Environment (Local)
           exposure: "1",
           style: { width: "100%", height: "100%" },
         } as any,
