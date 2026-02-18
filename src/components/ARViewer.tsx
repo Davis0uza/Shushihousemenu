@@ -56,19 +56,22 @@ export const ARViewer: React.FC<ARViewerProps> = ({
           slot="ar-prompt"
           style={{
             position: "absolute",
-            top: "50%",
+            top: "75%",
             left: "50%",
             transform: "translate(-50%, -50%)",
             textAlign: "center",
             color: "white",
-            background: "rgba(0,0,0,0.5)",
-            padding: "8px 16px",
-            borderRadius: "20px",
+            background: "rgba(0,0,0,0.8)",
+            padding: "12px 24px",
+            borderRadius: "30px",
             pointerEvents: "none",
             fontFamily: "sans-serif",
+            fontWeight: "bold",
+            zIndex: 9999,
+            width: "200px",
           }}
         >
-          👋 Aponte para uma superfície e toque para fixar
+          👇 Toque para fixar o prato!
         </div>,
         <div
           slot="ar-button"
