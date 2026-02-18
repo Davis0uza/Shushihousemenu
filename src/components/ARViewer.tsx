@@ -41,10 +41,13 @@ export const ARViewer: React.FC<ARViewerProps> = ({
           "camera-controls": true,
           "auto-rotate": true,
           ar: true,
-          "ar-modes": "scene-viewer quick-look webxr",
+          "ar-modes": "webxr scene-viewer quick-look", // Prioritize WebXR for seamless browser experience
           "ar-scale": "auto",
           "ar-placement": "floor",
           "touch-action": "pan-y",
+          loading: "eager", // Load model immediately when component mounts
+          "seamless-poster": true, // Smooth transition from image to model
+          environment: "neutral", // Consistent lighting across devices
           style: { width: "100%", height: "100%" },
         } as any,
         <div
