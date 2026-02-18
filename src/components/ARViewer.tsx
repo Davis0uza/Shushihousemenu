@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef } from "react";
 
 // ARViewer Component using <model-viewer>
 interface ARViewerProps {
@@ -15,81 +15,6 @@ export const ARViewer: React.FC<ARViewerProps> = ({
   altText,
 }) => {
   const modelViewerRef = useRef<any>(null);
-  const [isPlaced, setIsPlaced] = useState(false);
-  const [arMode, setArMode] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
-
-  // Check valid device OS
-  useEffect(() => {
-    setIsIOS(
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream,
-    );
-  }, []);
-
-  // Handle AR Session Start/End
-  useEffect(() => {
-    const mv = modelViewerRef.current;
-    if (!mv) return;
-
-    const onARStatus = (event: any) => {
-      // session-started logic
-      if (event.detail.status === "session-started") {
-        setArMode(true);
-        setIsPlaced(false);
-        // Initially hide the model to simulate "Reticle Only" mode
-        mv.scale = "0 0 0";
-      }
-      // not-presenting logic
-      else if (event.detail.status === "not-presenting") {
-        setArMode(false);
-        setIsPlaced(false);
-        // Reset scale for 3D viewer
-        mv.scale = "1 1 1";
-      }
-    };
-
-    mv.addEventListener("ar-status", onARStatus);
-    return () => mv.removeEventListener("ar-status", onARStatus);
-  }, []);
-
-  // Handle Placement (Tap)
-  const handlePlace = () => {
-    if (!arMode || isPlaced) return;
-
-    setIsPlaced(true);
-    const mv = modelViewerRef.current;
-    if (!mv) return;
-
-    // Spawn Animation
-    let progress = 0;
-    const duration = 1000; // 1s animation
-    const startTime = performance.now();
-
-    const animate = (time: number) => {
-      const elapsed = time - startTime;
-      progress = Math.min(elapsed / duration, 1);
-
-      // Easing (EaseOutBack for pop effect)
-      const ease = (t: number) => {
-        const c1 = 1.70158;
-        const c3 = c1 + 1;
-        return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
-      };
-
-      const scaleVal = ease(progress);
-      mv.scale = `${scaleVal} ${scaleVal} ${scaleVal}`;
-
-      // Rotate from -360 to 0
-      const rotationY = -360 * (1 - ease(progress));
-      mv.orientation = `0deg ${rotationY}deg 0deg`;
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-
-    requestAnimationFrame(animate);
-  };
 
   return (
     <div
@@ -102,61 +27,6 @@ export const ARViewer: React.FC<ARViewerProps> = ({
         overflow: "hidden",
       }}
     >
-      {/* 
-        AR OVERLAY SYSTEM 
-        Only visible when AR is active and model is NOT yet placed.
-        We stick a transparent div over everything to capture the "Place" tap anywhere on screen.
-        Note: This only works if the browser supports DOM Overlay in WebXR (Chrome Android usually does).
-      */}
-      {arMode && !isPlaced && !isIOS && (
-        <div
-          onClick={handlePlace} // Capture tap anywhere
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            zIndex: 999999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            pointerEvents: "auto", // Ensure it captures clicks
-          }}
-        >
-          {/* The Visual Reticle (Target) */}
-          <div
-            style={{
-              width: "250px",
-              height: "250px",
-              border: "3px dashed rgba(255, 255, 255, 0.9)",
-              borderRadius: "16px",
-              boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.4)", // Dim background focus effect
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              style={{
-                marginBottom: "-60px",
-                color: "white",
-                background: "rgba(0,0,0,0.8)",
-                padding: "10px 20px",
-                borderRadius: "30px",
-                fontWeight: "bold",
-                whiteSpace: "nowrap",
-                fontSize: "16px",
-                textAlign: "center",
-                pointerEvents: "none",
-              }}
-            >
-              Toque no quadrado para confirmar
-            </div>
-          </div>
-        </div>
-      )}
-
       {React.createElement(
         "model-viewer",
         {
@@ -168,20 +38,19 @@ export const ARViewer: React.FC<ARViewerProps> = ({
           "shadow-intensity": "1",
           "camera-controls": true,
           ar: true,
-          "ar-modes": "webxr scene-viewer quick-look",
-          "ar-scale": "fixed",
-          "ar-placement": "floor",
+          "ar-modes": "webxr scene-viewer quick-look", // Prefer WebXR for custom prompt support
+          "ar-scale": "auto", // Allow user scaling
+          "ar-placement": "floor", // Surface tracking
           "touch-action": "pan-y",
           loading: "eager",
           "seamless-poster": true,
           "environment-image": "neutral",
           "skybox-image": "/images/restaurant_env.jpg",
           exposure: "1",
-          "camera-orbit": "0deg 75deg auto",
-          "interaction-prompt": "none",
+          "camera-orbit": "0deg 75deg auto", // 3D View: Grounded angle
+          "interaction-prompt": "auto", // Enable prompt so our custom slot shows
+          "interaction-prompt-threshold": "0", // Show prompt immediately
           style: { width: "100%", height: "100%" },
-          // Fallback click handler if overlay fails or for non-AR interaction
-          onClick: handlePlace,
         } as any,
         <div
           slot="ar-button"
@@ -207,6 +76,51 @@ export const ARViewer: React.FC<ARViewerProps> = ({
           }}
         >
           Toque para ver em AR 🧊
+        </div>,
+        /* Custom AR Prompt (Reticle) - Shows when waiting for interaction */
+        <div
+          slot="ar-prompt"
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 99999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            pointerEvents: "none",
+          }}
+        >
+          {/* Reticle Box */}
+          <div
+            style={{
+              width: "250px",
+              height: "250px",
+              border: "3px dashed rgba(255, 255, 255, 0.9)",
+              borderRadius: "16px",
+              boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.4)", // Screen Dimmer
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "center",
+            }}
+          >
+            <div
+              style={{
+                marginBottom: "-60px",
+                color: "white",
+                background: "rgba(0,0,0,0.8)",
+                padding: "10px 20px",
+                borderRadius: "30px",
+                fontWeight: "bold",
+                fontFamily: "sans-serif",
+                fontSize: "16px",
+                textAlign: "center",
+              }}
+            >
+              Toque no prato para fixar
+            </div>
+          </div>
         </div>,
       )}
     </div>
