@@ -48,7 +48,7 @@ export function ItemDetailPanel({ item, onClose }: ItemDetailPanelProps) {
               transition: "all 0.2s ease",
             }}
           >
-            {show3D ? "Ver Foto 📷" : "Ver em 3D 🧊"}
+            {show3D ? "Ver Foto 📷" : "Ver Modelo 3D 🧊"}
           </button>
         )}
       </div>
