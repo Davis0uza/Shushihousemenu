@@ -50,6 +50,8 @@ export const ARViewer: React.FC<ARViewerProps> = ({
           "environment-image": "neutral", // Consistent lighting across devices
           "skybox-image": "/images/restaurant_env.jpg", // 360 Environment (Local)
           exposure: "1",
+          "camera-orbit": "45deg 55deg 2.5m", // Lower angle (table view) instead of top-down
+          "field-of-view": "30deg", // Slight zoom for better framing
           style: { width: "100%", height: "100%" },
         } as any,
         <div
